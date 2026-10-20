@@ -1,0 +1,24 @@
+name: CI Drive File Indexer Validation
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify Indexer Archives & Documentation
+        run: |
+          python -c "
+          import os, zipfile, glob
+          zips = glob.glob('*.zip')
+          assert len(zips) > 0, 'Indexer archive missing'
+          for z in zips:
+              with zipfile.ZipFile(z, 'r') as zf:
+                  print(f'Verified indexer archive {z}: {len(zf.namelist())} items')
+          assert os.path.exists('README.md'), 'README missing'
+          print('Drive File Indexer bundle validated!')
+          "
